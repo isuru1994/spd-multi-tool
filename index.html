@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPD / Unisoc Multi Tool v3.0 - Auto Server Edition</title>
+    <style>
+        :root {
+            --bg-main: #181721;
+            --bg-sidebar: #22212e;
+            --bg-panel: #1f1e2c;
+            --bg-input: #282738;
+            --border-color: #38364d;
+            --purple-grad: linear-gradient(90deg, #5e35b1, #7e57c2);
+            --purple-btn: linear-gradient(180deg, #4a3578, #36255c);
+            --purple-btn-hover: linear-gradient(180deg, #5b4291, #432e70);
+            --purple-border: #7c5dfa;
+            --green-neon: #39e622;
+            --yellow-text: #f1c40f;
+            --cyan-text: #00e5ff;
+            --text-white: #ffffff;
+        }
+
+        * { box-sizing: border-box; user-select: none; }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            background-color: #0e0d14;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .tool-window {
+            width: 100%;
+            max-width: 980px;
+            background: var(--bg-main);
+            border: 1px solid #483d8b;
+            border-radius: 10px;
+            box-shadow: 0 0 35px rgba(94, 53, 177, 0.35);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .window-header {
+            background: linear-gradient(180deg, #252336 0%, #191824 100%);
+            padding: 14px 22px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-area { display: flex; align-items: center; gap: 16px; }
+
+        .phone-logo {
+            width: 42px;
+            height: 60px;
+            border: 3px solid #6c5ce7;
+            border-radius: 8px;
+            background: #2b2640;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 4px;
+            box-shadow: 0 0 12px rgba(108, 92, 231, 0.4);
+        }
+
+        .phone-logo .screen {
+            width: 100%;
+            height: 36px;
+            background: #3d3566;
+            border-radius: 3px;
+            border-top: 2px solid #8c7ae6;
+        }
+
+        .phone-logo .btn-dot {
+            width: 5px;
+            height: 5px;
+            background: #8c7ae6;
+            border-radius: 50%;
+        }
+
+        .brand-text h1 { margin: 0; font-size: 1.75rem; font-weight: 700; color: #fff; }
+        .brand-text p { margin: 2px 0 0 0; font-size: 0.9rem; color: #d1cfe2; }
+
+        .usb-connect-top {
+            background: var(--purple-grad);
+            border: 1px solid #9575cd;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(94, 53, 177, 0.4);
+            transition: 0.2s;
+        }
+
+        .usb-connect-top:hover { filter: brightness(1.15); }
+        .usb-connect-top.connected { background: linear-gradient(90deg, #1b8a2a, #2ecc71); border-color: #55efc4; }
+
+        .window-body { display: flex; min-height: 490px; padding: 12px; gap: 12px; }
+
+        .sidebar {
+            width: 205px;
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px 16px;
+            color: #e0dfed;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 1px solid #2d2c3d;
+            transition: 0.15s;
+        }
+
+        .nav-item:hover { background: #2c2b3d; }
+        .nav-item.active { background: var(--purple-grad); color: #fff; font-weight: 600; }
+        .nav-item svg { width: 19px; height: 19px; fill: currentColor; flex-shrink: 0; }
+
+        .main-panel {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-title-bar {
+            background: linear-gradient(90deg, #322f47 0%, #242236 100%);
+            padding: 11px 18px;
+            font-size: 1.02rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loader-badge {
+            font-size: 0.76rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(0, 229, 255, 0.15);
+            color: var(--cyan-text);
+            border: 1px solid var(--cyan-text);
+            white-space: nowrap;
+        }
+
+        .panel-content { padding: 16px 20px; display: flex; flex-direction: column; flex: 1; gap: 12px; }
+        .tab-section { display: none; flex-direction: column; gap: 11px; }
+        .tab-section.active { display: flex; }
+
+        .form-row { display: flex; align-items: center; gap: 12px; }
+        .form-row label { width: 145px; font-size: 0.92rem; color: #e2e1f0; flex-shrink: 0; }
+
+        select, input[type="text"] {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid #45435e;
+            color: #ffffff;
+            padding: 8px 11px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        select:focus, input[type="text"]:focus { border-color: var(--purple-border); }
+
+        .file-row-split { flex: 1; display: flex; gap: 8px; }
+        input[type="file"] {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid #45435e;
+            color: #d1cfe2;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 0.84rem;
+        }
+
+        .addr-box {
+            width: 110px !important;
+            flex: none !important;
+            text-align: center;
+            font-family: 'Consolas', monospace;
+            color: var(--yellow-text) !important;
+        }
+
+        .btn-row { display: flex; gap: 10px; margin-top: 2px; }
+
+        .action-btn {
+            flex: 1;
+            padding: 11px 14px;
+            background: var(--purple-btn);
+            border: 1px solid var(--purple-border);
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 0.96rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+            transition: 0.15s;
+        }
+
+        .action-btn:hover:not(:disabled) { background: var(--purple-btn-hover); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .action-btn.secondary { background: linear-gradient(180deg, #2b3a4a, #1e2936); border-color: #00e5ff; color: #00e5ff; }
+        .action-btn.danger { background: linear-gradient(180deg, #5c2525, #421818); border-color: #ff5252; }
+
+        .log-console {
+            background: #111017;
+            border: 1px solid #35334a;
+            border-radius: 5px;
+            height: 165px;
+            padding: 11px 13px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            overflow-y: auto;
+            color: #e6e6e6;
+            user-select: text;
+        }
+
+        .txt-ok { color: var(--green-neon); font-weight: bold; }
+        .txt-warn { color: var(--yellow-text); }
+        .txt-cyan { color: var(--cyan-text); }
+        .txt-err { color: #ff5252; font-weight: bold; }
+
+        .progress-area { display: flex; align-items: center; gap: 12px; }
+        .progress-track {
+            flex: 1;
+            height: 18px;
+            background: #15141f;
+            border: 1px solid #3b3954;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2ecc71, #39e622);
+            transition: width 0.2s ease;
+        }
+        .progress-pct { font-size: 0.9rem; font-weight: 600; min-width: 42px; text-align: right; }
+
+        .window-footer {
+            background: #161521;
+            border-top: 1px solid var(--border-color);
+            padding: 9px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+        }
+        .status-text span { color: var(--green-neon); font-weight: 600; margin-left: 6px; }
+        .version-text { color: #c5c3d6; }
+    </style>
+</head>
+<body>
+
+<div class="tool-window">
+    <div class="window-header">
+        <div class="brand-area">
+            <div class="phone-logo">
+                <div class="screen"></div>
+                <div class="btn-dot"></div>
+            </div>
+            <div class="brand-text">
+                <h1>SPD / Unisoc Multi Tool</h1>
+                <p>Samsung (2015–2026) & Nokia SPD Cloud Auto-Flash / Unlock Engine</p>
+            </div>
+        </div>
+        <button id="btnConnectUSB" class="usb-connect-top">
+            <span>🔌</span> <span id="usbBtnLabel">Connect SPD USB</span>
+        </button>
+    </div>
+
+    <div class="window-body">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="nav-item active" data-tab="unlock" data-title="Unlock / Read Passcode / Factory Reset">
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>Unlock & Reset</span>
+            </div>
+            <div class="nav-item" data-tab="flash" data-title="Cloud Auto-Flash & Local .PAC Flasher">
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <span>Auto Flash</span>
+            </div>
+            <div class="nav-item" data-tab="loaders" data-title="GitHub Auto-Loaders & Cache Manager">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                <span>Cloud & Loaders</span>
+            </div>
+            <div class="nav-item" data-tab="backup" data-title="NV & IMEI Calibration Backup">
+                <svg viewBox="0 0 24 24"><path d="M12 3C7.58 3 4 4.79 4 7s3.58 4 8 4 8-1.79 8-4-3.58-4-8-4zM4 9v3c0 2.21 3.58 4 8 4s8-1.79 8-4V9c0 2.21-3.58 4-8 4s-8-1.79-8-4zm0 5v3c0 2.21 3.58 4 8 4s8-1.79 8-4v-3c0 2.21-3.58 4-8 4s-8-1.79-8-4z"/></svg>
+                <span>NV Backup</span>
+            </div>
+            <div class="nav-item" data-tab="repair" data-title="NV Calibration Restore">
+                <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                <span>NV Restore</span>
+            </div>
+            <div class="nav-item" data-tab="home" data-title="Boot Key Guide & BootROM Test">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span>Boot Guide</span>
+            </div>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="main-panel">
+            <div class="panel-title-bar">
+                <span id="panelTitle">Unlock / Read Passcode / Factory Reset</span>
+                <span class="loader-badge" id="activeLoaderBadge">CPU: SC6531E (Auto)</span>
+            </div>
+
+            <div class="panel-content">
+                <!-- GLOBAL BRAND & MODEL SELECTOR -->
+                <div class="form-row">
+                    <label>Select Brand :</label>
+                    <select id="brandSelect">
+                        <option value="samsung">Samsung Basic Phones (2015 – 2026 SPD)</option>
+                        <option value="nokia">Nokia Basic & 4G Phones (All SPD / Unisoc)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Select Model :</label>
+                    <select id="modelSelect"></select>
+                </div>
+
+                <!-- TAB: UNLOCK & RESET -->
+                <div class="tab-section active" id="tab-unlock">
+                    <div class="form-row">
+                        <label>Operation Mode :</label>
+                        <select id="unlockMethod">
+                            <option value="read_passcode">Read User Passcode / Security Lock (No Data Loss)</option>
+                            <option value="factory_reset">Factory Reset & Remove Lock (Safe NV Keep)</option>
+                            <option value="read_info">Read Phone Info, CPU & Flash ID</option>
+                        </select>
+                    </div>
+                    <div class="btn-row">
+                        <button class="action-btn secondary" id="btnReadPasscode">
+                            <span>🔍</span> Read Passcode
+                        </button>
+                        <button class="action-btn" id="btnFactoryReset">
+                            <span>⚡</span> Factory Reset / Unlock
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB: FLASH -->
+                <div class="tab-section" id="tab-flash">
+                    <div class="form-row">
+                        <label>Firmware Source :</label>
+                        <select id="fwSourceSelect">
+                            <option value="server">Auto-Download Firmware from GitHub Server (.PAC)</option>
+                            <option value="local">Select Local Firmware File (.PAC / .BIN)</option>
+                        </select>
+                    </div>
+                    <div class="form-row" id="localPacRow" style="display:none;">
+                        <label>Local File :</label>
+                        <input type="file" id="pacFileInput" accept=".pac,.bin">
+                    </div>
+                    <div class="form-row">
+                        <label>Flash Option :</label>
+                        <select id="flashMode">
+                            <option value="nv_keep">Write Firmware (Keep NV / IMEI Safe - Recommended)</option>
+                            <option value="full_pac">Full PAC Firmware Write (All Partitions)</option>
+                        </select>
+                    </div>
+                    <button class="action-btn" id="btnStartFlash">
+                        <span>▶</span> Auto-Fetch & Start Flash Firmware
+                    </button>
+                </div>
+
+                <!-- TAB: CLOUD & LOADERS -->
+                <div class="tab-section" id="tab-loaders">
+                    <div class="form-row">
+                        <label>Server Status :</label>
+                        <input type="text" id="githubLoaderStatus" readonly value="Checking GitHub /loaders/ & /firmwares/...">
+                    </div>
+                    <div class="form-row">
+                        <label>Manual FDL1 :</label>
+                        <div class="file-row-split">
+                            <input type="file" id="fdl1Input" accept=".bin">
+                            <input type="text" id="fdl1Addr" class="addr-box" value="0x40004000">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Manual FDL2 :</label>
+                        <div class="file-row-split">
+                            <input type="file" id="fdl2Input" accept=".bin">
+                            <input type="text" id="fdl2Addr" class="addr-box" value="0x90000000">
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button class="action-btn" id="btnBootLoaders">
+                            <span>▶</span> Test Boot FDL1 & FDL2
+                        </button>
+                        <button class="action-btn danger" id="btnClearCache">
+                            <span>🗑️</span> Clear Browser Cache
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB: BACKUP -->
+                <div class="tab-section" id="tab-backup">
+                    <div class="form-row">
+                        <label>Backup Target :</label>
+                        <input type="text" readonly value="NV Calibration & IMEI Partition (64KB / 128KB .BIN)">
+                    </div>
+                    <button class="action-btn" id="btnStartBackup">
+                        <span>💾</span> Read & Download NV Backup (.BIN)
+                    </button>
+                </div>
+
+                <!-- TAB: REPAIR -->
+                <div class="tab-section" id="tab-repair">
+                    <div class="form-row">
+                        <label>Select NV File :</label>
+                        <input type="file" id="nvRestoreInput" accept=".bin">
+                    </div>
+                    <button class="action-btn" id="btnRestoreNV">
+                        <span>🔧</span> Write / Restore NV Partition
+                    </button>
+                </div>
+
+                <!-- TAB: HOME / BOOT GUIDE -->
+                <div class="tab-section" id="tab-home">
+                    <div class="form-row">
+                        <label>Samsung Boot :</label>
+                        <input type="text" readonly value="Power Off -> Hold OK (Center) or 0 Key -> Insert USB">
+                    </div>
+                    <div class="form-row">
+                        <label>Nokia Boot :</label>
+                        <input type="text" readonly value="Power Off -> Hold 0, Up/Down, or Call Key -> Insert USB">
+                    </div>
+                    <button class="action-btn" id="btnCheckDevice">
+                        <span>🔌</span> Handshake & Check BootROM
+                    </button>
+                </div>
+
+                <!-- Log Console -->
+                <div class="log-console" id="logConsole">
+                    <div>Initializing SPD / Unisoc Cloud WebUSB Engine... <span class="txt-ok">OK</span></div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-area">
+                    <div class="progress-track">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="progress-pct" id="progressPct">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="window-footer">
+        <div class="status-text">Status : <span id="statusText">Ready</span></div>
+        <div class="version-text">Version : 3.0.0 (Cloud Auto-Flash + Passcode Reader)</div>
+    </div>
+</div>
+
+<script>
+    // =========================================================================
+    // 1. GITHUB SERVER CONFIGURATION & MODEL DATABASE (SAMSUNG 2015-2026 & NOKIA)
+    // =========================================================================
+    // Set to './' if hosted on the same GitHub Pages repo, or use raw GitHub URL:
+    // e.g., 'https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/'
+    const SERVER_BASE_URL = './';
+
+    const CPU_LOADERS = {
+        sc6530:  { cpu: 'SC6530',  fdl1: 'loaders/sc6530_fdl1.bin',  fdl2: 'loaders/sc6530_fdl2.bin',  addr1: '0x40004000', addr2: '0x30000000', nvAddr: 0x30000000, userAddr: 0x30010000 },
+        sc6531:  { cpu: 'SC6531',  fdl1: 'loaders/sc6531_fdl1.bin',  fdl2: 'loaders/sc6531_fdl2.bin',  addr1: '0x40004000', addr2: '0x30000000', nvAddr: 0x30000000, userAddr: 0x30010000 },
+        sc6531e: { cpu: 'SC6531E', fdl1: 'loaders/sc6531e_fdl1.bin', fdl2: 'loaders/sc6531e_fdl2.bin', addr1: '0x40004000', addr2: '0x90000000', nvAddr: 0x90000002, userAddr: 0x90000004 },
+        sc7701:  { cpu: 'SC7701',  fdl1: 'loaders/sc7701_fdl1.bin',  fdl2: 'loaders/sc7701_fdl2.bin',  addr1: '0x00000000', addr2: '0x80000000', nvAddr: 0x90000002, userAddr: 0x90000004 },
+        ums9117: { cpu: 'UMS9117 (T107/T117)', fdl1: 'loaders/ums9117_fdl1.bin', fdl2: 'loaders/ums9117_fdl2.bin', addr1: '0x00800000', addr2: '0x80000000', nvAddr: 'fixnv1', userAddr: 'userdata' }
+    };
+
+    const PHONE_DATABASE = {
+        samsung: [
+            // 2015 - 2018 Classic Models
+            { id: 'sm_b310e', name: 'Samsung Guru Music 2 (SM-B310E) [2015–2024]', cpu: 'sc6531e', pac: 'firmwares/samsung/SM-B310E.pac' },
+            { id: 'sm_b313e', name: 'Samsung Metro 313 (SM-B313E)', cpu: 'sc6531', pac: 'firmwares/samsung/SM-B313E.pac' },
+            { id: 'sm_b350e', name: 'Samsung Metro 350 (SM-B350E)', cpu: 'sc6531', pac: 'firmwares/samsung/SM-B350E.pac' },
+            { id: 'sm_b110e', name: 'Samsung Guru 1200 / B110E', cpu: 'sc6531e', pac: 'firmwares/samsung/SM-B110E.pac' },
+            { id: 'gt_e1200y', name: 'Samsung Keystone 2 (GT-E1200Y / E1200R)', cpu: 'sc6530', pac: 'firmwares/samsung/GT-E1200Y.pac' },
+            { id: 'gt_e1205y', name: 'Samsung Keystone 2 FM (GT-E1205Y / E1207Y)', cpu: 'sc6530', pac: 'firmwares/samsung/GT-E1205Y.pac' },
+            { id: 'gt_e1272', name: 'Samsung Caramel Flip (GT-E1272)', cpu: 'sc6530', pac: 'firmwares/samsung/GT-E1272.pac' },
+            { id: 'sm_b360e', name: 'Samsung Metro 360 (SM-B360E)', cpu: 'sc7701', pac: 'firmwares/samsung/SM-B360E.pac' },
+            // 2019 - 2026 New Revision Models
+            { id: 'sm_b310e_new', name: 'Samsung Guru Music 2 New Rev (SM-B310E/DS 2020–2026)', cpu: 'sc6531e', pac: 'firmwares/samsung/SM-B310E_NEW.pac' },
+            { id: 'sm_b110e_new', name: 'Samsung Guru 1200 New Rev (SM-B110E/D 2021–2026)', cpu: 'sc6531e', pac: 'firmwares/samsung/SM-B110E_NEW.pac' },
+            { id: 'sm_b315e', name: 'Samsung Metro B315E / Guru FM Plus (SM-B115E)', cpu: 'sc6531e', pac: 'firmwares/samsung/SM-B315E.pac' },
+            { id: 'sm_4g_t107', name: 'Samsung Basic 4G VoLTE Series (2023–2026 UMS9117)', cpu: 'ums9117', pac: 'firmwares/samsung/SM_4G_T107.pac' }
+        ],
+        nokia: [
+            // SC6531E Keypad Models
+            { id: 'nk_105_17', name: 'Nokia 105 (2017) TA-1010 / TA-1034', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_105_TA1034.pac' },
+            { id: 'nk_105_19', name: 'Nokia 105 (2019) TA-1174 / TA-1203', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_105_TA1174.pac' },
+            { id: 'nk_105_23', name: 'Nokia 105 (2023/2024) TA-1557 / TA-1575', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_105_TA1557.pac' },
+            { id: 'nk_106_18', name: 'Nokia 106 (2018/2023) TA-1114 / TA-1564', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_106_TA1114.pac' },
+            { id: 'nk_110_19', name: 'Nokia 110 (2019/2023) TA-1192 / TA-1567', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_110_TA1192.pac' },
+            { id: 'nk_130_17', name: 'Nokia 130 (2017/2023) TA-1017 / TA-1571', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_130_TA1017.pac' },
+            { id: 'nk_150_20', name: 'Nokia 150 (2020/2023) TA-1235 / TA-1582', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_150_TA1235.pac' },
+            { id: 'nk_210_19', name: 'Nokia 210 (2019) TA-1139', cpu: 'sc6531e', pac: 'firmwares/nokia/Nokia_210_TA1139.pac' },
+            // Unisoc 4G Models (UMS9117 / T107 / T117)
+            { id: 'nk_105_4g', name: 'Nokia 105 4G / 110 4G (TA-1378 / TA-1386 / TA-1547)', cpu: 'ums9117', pac: 'firmwares/nokia/Nokia_105_4G.pac' },
+            { id: 'nk_215_4g', name: 'Nokia 215 4G / 225 4G (TA-1282 / TA-1276)', cpu: 'ums9117', pac: 'firmwares/nokia/Nokia_215_4G.pac' },
+            { id: 'nk_2660_4g', name: 'Nokia 2660 Flip / 3210 4G / 235 4G (2022–2026)', cpu: 'ums9117', pac: 'firmwares/nokia/Nokia_2660_3210_4G.pac' }
+        ]
+    };
+
+    // =========================================================================
+    // 2. INDEXED-DB BROWSER CACHE (SAVES DOWNLOADED LOADERS & PAC FILES)
+    // =========================================================================
+    const DB_NAME = 'SPD_Cloud_Cache_DB';
+    const STORE_NAME = 'files';
+
+    function openCacheDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, 1);
+            req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function fetchWithCache(relativeUrl, label = 'File') {
+        const fullUrl = SERVER_BASE_URL + relativeUrl;
+        const db = await openCacheDB();
+
+        // Check IndexedDB cache first
+        const cached = await new Promise((resolve) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const req = tx.objectStore(STORE_NAME).get(fullUrl);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(null);
+        });
+
+        if (cached) {
+            addLog(`Loaded <span class="txt-cyan">${label}</span> from Browser Cache... <span class="txt-ok">OK</span>`);
+            return cached;
+        }
+
+        // Fetch from GitHub Server with progress
+        addLog(`Downloading <span class="txt-warn">${label}</span> from Server...`);
+        const response = await fetch(fullUrl);
+        if (!response.ok) {
+            throw new Error(`Server File Missing (${relativeUrl}). Upload file to GitHub repository.`);
+        }
+
+        const contentLength = +response.headers.get('Content-Length') || 0;
+        const reader = response.body.getReader();
+        let received = 0;
+        const chunks = [];
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            received += value.length;
+            if (contentLength > 0) {
+                updateProgress((received / contentLength) * 100);
+            }
+        }
+
+        const buffer = new Uint8Array(received);
+        let pos = 0;
+        for (const chunk of chunks) {
+            buffer.set(chunk, pos);
+            pos += chunk.length;
+        }
+
+        // Save to IndexedDB
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(buffer.buffer, fullUrl);
+        addLog(`Downloaded & Cached ${label} (${(received / 1024).toFixed(1)} KB)... <span class="txt-ok">OK</span>`);
+        return buffer.buffer;
+    }
+
+    document.getElementById('btnClearCache').addEventListener('click', async () => {
+        const db = await openCacheDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).clear();
+        addLog('Browser firmware & loader cache cleared!', 'txt-warn');
+    });
+
+    // =========================================================================
+    // 3. UI & MODEL SELECTION LOGIC
+    // =========================================================================
+    let activeFDL1Buffer = null;
+    let activeFDL2Buffer = null;
+    let currentModelObj = null;
+    let pacPartitions = [];
+
+    const brandSelect = document.getElementById('brandSelect');
+    const modelSelect = document.getElementById('modelSelect');
+    const logConsole = document.getElementById('logConsole');
+    const progressBar = document.getElementById('progressBar');
+    const progressPct = document.getElementById('progressPct');
+    const statusText = document.getElementById('statusText');
+    const activeLoaderBadge = document.getElementById('activeLoaderBadge');
+
+    function addLog(htmlMsg, cls = '') {
+        const line = document.createElement('div');
+        line.innerHTML = cls ? `<span class="${cls}">${htmlMsg}</span>` : htmlMsg;
+        logConsole.appendChild(line);
+        logConsole.scrollTop = logConsole.scrollHeight;
+    }
+
+    function updateProgress(val) {
+        const p = Math.min(100, Math.max(0, Math.round(val)));
+        progressBar.style.width = `${p}%`;
+        progressPct.textContent = `${p}%`;
+    }
+
+    function setStatus(msg, isError = false) {
+        statusText.textContent = msg;
+        statusText.style.color = isError ? '#ff5252' : '#39e622';
+    }
+
+    function populateModels() {
+        const brand = brandSelect.value;
+        modelSelect.innerHTML = '';
+        PHONE_DATABASE[brand].forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = m.name;
+            modelSelect.appendChild(opt);
+        });
+        onModelChanged();
+    }
+
+    async function onModelChanged() {
+        const brand = brandSelect.value;
+        currentModelObj = PHONE_DATABASE[brand].find(m => m.id === modelSelect.value);
+        if (!currentModelObj) return;
+
+        const cpuCfg = CPU_LOADERS[currentModelObj.cpu];
+        document.getElementById('fdl1Addr').value = cpuCfg.addr1;
+        document.getElementById('fdl2Addr').value = cpuCfg.addr2;
+        activeLoaderBadge.textContent = `CPU: ${cpuCfg.cpu}`;
+        document.getElementById('githubLoaderStatus').value = `${cpuCfg.fdl1} | ${currentModelObj.pac}`;
+
+        try {
+            activeFDL1Buffer = await fetchWithCache(cpuCfg.fdl1, `${cpuCfg.cpu} FDL1`);
+            activeFDL2Buffer = await fetchWithCache(cpuCfg.fdl2, `${cpuCfg.cpu} FDL2`);
+        } catch (err) {
+            activeFDL1Buffer = null;
+            activeFDL2Buffer = null;
+            addLog(err.message, 'txt-warn');
+        }
+    }
+
+    brandSelect.addEventListener('change', populateModels);
+    modelSelect.addEventListener('change', onModelChanged);
+    window.addEventListener('DOMContentLoaded', populateModels);
+
+    // Toggle Local vs Server Firmware Input
+    document.getElementById('fwSourceSelect').addEventListener('change', (e) => {
+        document.getElementById('localPacRow').style.display = e.target.value === 'local' ? 'flex' : 'none';
+    });
+
+    // Manual Loader Overrides
+    document.getElementById('fdl1Input').addEventListener('change', async (e) => {
+        if (e.target.files[0]) {
+            activeFDL1Buffer = await e.target.files[0].arrayBuffer();
+            addLog(`Manual FDL1 Loaded: <span class="txt-warn">${e.target.files[0].name}</span>`);
+        }
+    });
+    document.getElementById('fdl2Input').addEventListener('change', async (e) => {
+        if (e.target.files[0]) {
+            activeFDL2Buffer = await e.target.files[0].arrayBuffer();
+            addLog(`Manual FDL2 Loaded: <span class="txt-warn">${e.target.files[0].name}</span>`);
+        }
+    });
+
+    // Sidebar Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+            item.classList.add('active');
+            document.getElementById('panelTitle').textContent = item.getAttribute('data-title');
+            document.getElementById(`tab-${item.getAttribute('data-tab')}`).classList.add('active');
+        });
+    });
+
+    // =========================================================================
+    // 4. WEBUSB SPD PROTOCOL & HDLC ENGINE
+    // =========================================================================
+    const SPD_VID = 0x1782, SPD_PID = 0x4D00;
+    const HDLC_FLAG = 0x7E, HDLC_ESCAPE = 0x7D;
+
+    const CMD_CONNECT      = 0x00;
+    const CMD_START_DATA   = 0x01;
+    const CMD_MIDST_DATA   = 0x02;
+    const CMD_END_DATA     = 0x03;
+    const CMD_EXEC_DATA    = 0x04;
+    const CMD_NORMAL_RESET = 0x05;
+    const CMD_READ_FLASH   = 0x06;
+    const CMD_ERASE_FLASH  = 0x0A;
+
+    let usbDevice = null, epIn = null, epOut = null;
+
+    document.getElementById('btnConnectUSB').addEventListener('click', async () => {
+        try {
+            addLog('Waiting for SPRD U2S Diag USB device...');
+            usbDevice = await navigator.usb.requestDevice({
+                filters: [{ vendorId: SPD_VID, productId: SPD_PID }]
+            });
+            await usbDevice.open();
+            if (!usbDevice.configuration) await usbDevice.selectConfiguration(1);
+            const iface = usbDevice.configuration.interfaces[0];
+            await usbDevice.claimInterface(iface.interfaceNumber);
+
+            for (const ep of iface.alternate.endpoints) {
+                if (ep.direction === 'in' && ep.type === 'bulk') epIn = ep.endpointNumber;
+                if (ep.direction === 'out' && ep.type === 'bulk') epOut = ep.endpointNumber;
+            }
+
+            document.getElementById('btnConnectUSB').classList.add('connected');
+            document.getElementById('usbBtnLabel').textContent = 'SPD Connected ✓';
+            addLog(`Connected: <span class="txt-ok">${usbDevice.productName || 'SPRD U2S Diag (1782:4D00)'}</span>`);
+            setStatus('Device Connected!');
+        } catch (err) {
+            addLog(`USB Error: ${err.message}`, 'txt-err');
+            setStatus('USB Connection Failed!', true);
+        }
+    });
+
+    function calcChecksum(data) {
+        let sum = 0;
+        for (let i = 0; i < data.length; i += 2) {
+            let w = data[i] << 8;
+            if (i + 1 < data.length) w |= data[i + 1];
+            sum += w;
+        }
+        while (sum > 0xFFFF) sum = (sum & 0xFFFF) + (sum >> 16);
+        return (~sum) & 0xFFFF;
+    }
+
+    function encodeFrame(cmd, payload = new Uint8Array(0)) {
+        const raw = new Uint8Array(4 + payload.length);
+        raw[0] = (cmd >> 8) & 0xFF;
+        raw[1] = cmd & 0xFF;
+        raw[2] = (payload.length >> 8) & 0xFF;
+        raw[3] = payload.length & 0xFF;
+        raw.set(payload, 4);
+
+        const crc = calcChecksum(raw);
+        const pkt = new Uint8Array(raw.length + 2);
+        pkt.set(raw);
+        pkt[raw.length] = (crc >> 8) & 0xFF;
+        pkt[raw.length + 1] = crc & 0xFF;
+
+        const out = [HDLC_FLAG];
+        for (const b of pkt) {
+            if (b === HDLC_FLAG || b === HDLC_ESCAPE) out.push(HDLC_ESCAPE, b ^ 0x20);
+            else out.push(b);
+        }
+        out.push(HDLC_FLAG);
+        return new Uint8Array(out);
+    }
+
+    function decodeFrame(rawBytes) {
+        const unescaped = [];
+        let inFrame = false, esc = false;
+        for (const b of rawBytes) {
+            if (b === HDLC_FLAG) {
+                if (inFrame && unescaped.length > 0) break;
+                inFrame = true;
+                continue;
+            }
+            if (!inFrame) continue;
+            if (b === HDLC_ESCAPE) { esc = true; continue; }
+            if (esc) { unescaped.push(b ^ 0x20); esc = false; }
+            else unescaped.push(b);
+        }
+        if (unescaped.length < 6) return { type: 0, payload: new Uint8Array(0) };
+        const type = (unescaped[0] << 8) | unescaped[1];
+        const len = (unescaped[2] << 8) | unescaped[3];
+        return { type, payload: new Uint8Array(unescaped.slice(4, 4 + len)) };
+    }
+
+    async function readHDLCResponse() {
+        const collected = [];
+        let flagCount = 0;
+        for (let tries = 0; tries < 15; tries++) {
+            const res = await usbDevice.transferIn(epIn, 4096);
+            const chunk = new Uint8Array(res.data.buffer);
+            for (const b of chunk) {
+                collected.push(b);
+                if (b === HDLC_FLAG) flagCount++;
+            }
+            if (flagCount >= 2) break;
+        }
+        return decodeFrame(collected);
+    }
+
+    async function sendCommand(cmd, payload = new Uint8Array(0)) {
+        if (!usbDevice) throw new Error('Please connect the phone via "Connect SPD USB" first!');
+        await usbDevice.transferOut(epOut, encodeFrame(cmd, payload));
+        return await readHDLCResponse();
+    }
+
+    async function sendArrayBuffer(arrayBuf, addrOrName, chunkSize = 0x800) {
+        const bytes = new Uint8Array(arrayBuf);
+        let startPayload;
+
+        if (typeof addrOrName === 'string' && !addrOrName.startsWith('0x')) {
+            // Modern UMS9117 UTF-16LE Partition Name Header (72 bytes name + 4 bytes size)
+            startPayload = new Uint8Array(76);
+            for (let i = 0; i < addrOrName.length && i < 35; i++) {
+                startPayload[i * 2] = addrOrName.charCodeAt(i);
+            }
+            new DataView(startPayload.buffer).setUint32(72, bytes.length, true);
+        } else {
+            // Legacy 32-bit Address Header
+            const addr = typeof addrOrName === 'string' ? parseInt(addrOrName, 16) : addrOrName;
+            startPayload = new Uint8Array(8);
+            const dv = new DataView(startPayload.buffer);
+            dv.setUint32(0, addr, false);
+            dv.setUint32(4, bytes.length, false);
+        }
+
+        await sendCommand(CMD_START_DATA, startPayload);
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            await sendCommand(CMD_MIDST_DATA, bytes.slice(i, i + chunkSize));
+            updateProgress((i / bytes.length) * 100);
+        }
+        await sendCommand(CMD_END_DATA);
+        updateProgress(100);
+    }
+
+    async function bootActiveLoaders() {
+        if (!activeFDL1Buffer || !activeFDL2Buffer) {
+            throw new Error('Loaders missing! Upload /loaders/*.bin to GitHub or load manually.');
+        }
+        const addr1 = document.getElementById('fdl1Addr').value;
+        const addr2 = document.getElementById('fdl2Addr').value;
+
+        addLog('Sending BootROM Handshake (0x7E)...');
+        await usbDevice.transferOut(epOut, new Uint8Array([0x7E]));
+        await readHDLCResponse();
+        const verRes = await sendCommand(CMD_CONNECT);
+        if (verRes.payload.length > 0) {
+            addLog(`BootROM Version: <span class="txt-cyan">${new TextDecoder().decode(verRes.payload)}</span>`);
+        }
+
+        addLog(`Loading FDL1 @ ${addr1}...`);
+        await sendArrayBuffer(activeFDL1Buffer, addr1, 0x210);
+        await sendCommand(CMD_EXEC_DATA);
+        await sendCommand(CMD_CONNECT);
+
+        addLog(`Loading FDL2 @ ${addr2}...`);
+        await sendArrayBuffer(activeFDL2Buffer, addr2, 0x800);
+        await sendCommand(CMD_EXEC_DATA);
+        await sendCommand(CMD_CONNECT);
+        addLog('FDL1 & FDL2 Booted Successfully... <span class="txt-ok">OK</span>');
+    }
+
+    // =========================================================================
+    // 5. READ PASSCODE & SAFE FACTORY RESET HANDLERS
+    // =========================================================================
+    function extractPasscodeFromNV(nvBytes) {
+        const candidates = new Set();
+        // Scan ASCII 4-8 digit codes surrounded by null bytes (common in SC6530/SC6531E NV)
+        let current = '';
+        for (let i = 0; i < nvBytes.length; i++) {
+            const b = nvBytes[i];
+            if (b >= 0x30 && b <= 0x39) {
+                current += String.fromCharCode(b);
+            } else {
+                if (current.length >= 4 && current.length <= 8 && (b === 0x00 || b === 0xFF)) {
+                    // Filter out common defaults/dates like 00000000 or 12345678 if needed, keep 1234/0000
+                    if (!/^0{6,8}$/.test(current)) candidates.add(current);
+                }
+                current = '';
+            }
+        }
+        return Array.from(candidates).slice(0, 6);
+    }
+
+    async function readFlashBlock(addr, size) {
+        const result = new Uint8Array(size);
+        const step = 0x800;
+        for (let offset = 0; offset < size; offset += step) {
+            const req = new Uint8Array(8);
+            const dv = new DataView(req.buffer);
+            dv.setUint32(0, addr + offset, false);
+            dv.setUint32(4, Math.min(step, size - offset), false);
+            const resp = await sendCommand(CMD_READ_FLASH, req);
+            result.set(resp.payload.slice(0, Math.min(step, size - offset)), offset);
+            updateProgress((offset / size) * 100);
+        }
+        updateProgress(100);
+        return result;
+    }
+
+    // READ PASSCODE BUTTON
+    document.getElementById('btnReadPasscode').addEventListener('click', async () => {
+        try {
+            updateProgress(0);
+            await bootActiveLoaders();
+            const cpuCfg = CPU_LOADERS[currentModelObj.cpu];
+            addLog(`Reading NV & Security Partition for <span class="txt-cyan">${currentModelObj.name}</span>...`);
+
+            const readAddr = typeof cpuCfg.nvAddr === 'number' ? cpuCfg.nvAddr : 0x90000002;
+            const nvDump = await readFlashBlock(readAddr, 0x10000); // 64KB NV scan
+            const codes = extractPasscodeFromNV(nvDump);
+
+            if (codes.length > 0) {
+                addLog(`Possible User Lock Code(s) Found: <span class="txt-ok">${codes.join('  |  ')}</span>`);
+            } else {
+                addLog('No custom PIN found (Default code may be 1234 or 0000, or use Factory Reset).', 'txt-warn');
+            }
+            await sendCommand(CMD_NORMAL_RESET);
+            setStatus('Read Passcode Completed!');
+        } catch (err) {
+            addLog(err.message, 'txt-err');
+            setStatus('Read Passcode Failed!', true);
+        }
+    });
+
+    // FACTORY RESET / UNLOCK BUTTON
+    document.getElementById('btnFactoryReset').addEventListener('click', async () => {
+        try {
+            updateProgress(0);
+            await bootActiveLoaders();
+            const cpuCfg = CPU_LOADERS[currentModelObj.cpu];
+            addLog(`Executing Safe Factory Reset (Preserving IMEI/Calibration)...`);
+
+            if (typeof cpuCfg.userAddr === 'string') {
+                // Modern UMS9117 (T107/T117) partition erase
+                const partBytes = new Uint8Array(76);
+                for (let i = 0; i < cpuCfg.userAddr.length; i++) {
+                    partBytes[i * 2] = cpuCfg.userAddr.charCodeAt(i);
+                }
+                await sendCommand(CMD_ERASE_FLASH, partBytes);
+            } else {
+                // Legacy SC6530/SC6531E Userdata / Running NV safe wipe
+                const eraseReq = new Uint8Array(8);
+                const dv = new DataView(eraseReq.buffer);
+                dv.setUint32(0, cpuCfg.userAddr, false);
+                dv.setUint32(4, 0x00010000, false);
+                await sendCommand(CMD_ERASE_FLASH, eraseReq);
+            }
+
+            updateProgress(95);
+            await sendCommand(CMD_NORMAL_RESET);
+            updateProgress(100);
+            addLog('Factory Reset & User Lock Removal Completed! Device Rebooting...', 'txt-ok');
+            setStatus('Factory Reset Success!');
+        } catch (err) {
+            addLog(err.message, 'txt-err');
+            setStatus('Factory Reset Failed!', true);
+        }
+    });
+
+    // =========================================================================
+    // 6. AUTO-DOWNLOAD & FLASH PAC FIRMWARE
+    // =========================================================================
+    function parsePACBuffer(arrayBuffer) {
+        const view = new DataView(arrayBuffer);
+        if (view.getUint32(2048, true) !== 0xFFFAFFFA) {
+            throw new Error('Invalid .PAC Firmware Header!');
+        }
+        const count = view.getUint32(2056, true);
+        const offset = view.getUint32(2060, true);
+        const dec = new TextDecoder('utf-16le');
+        const parts = [];
+
+        for (let i = 0; i < count; i++) {
+            const base = offset + i * 2580;
+            const id = dec.decode(new Uint8Array(arrayBuffer, base + 4, 512)).replace(/\0/g, '').trim();
+            const name = dec.decode(new Uint8Array(arrayBuffer, base + 516, 512)).replace(/\0/g, '').trim();
+            const size = view.getUint32(base + 1540, true);
+            const dataOff = view.getUint32(base + 1552, true);
+            const addr = view.getUint32(base + 1560, true);
+            if (size > 0 && name) {
+                parts.push({ id, name, size, addr, buffer: arrayBuffer.slice(dataOff, dataOff + size) });
+            }
+        }
+        return parts;
+    }
+
+    document.getElementById('btnStartFlash').addEventListener('click', async () => {
+        try {
+            updateProgress(0);
+            const source = document.getElementById('fwSourceSelect').value;
+            let pacBuffer;
+
+            if (source === 'server') {
+                pacBuffer = await fetchWithCache(currentModelObj.pac, `${currentModelObj.name} Firmware`);
+            } else {
+                const file = document.getElementById('pacFileInput').files[0];
+                if (!file) throw new Error('Please choose a local .PAC file first!');
+                pacBuffer = await file.arrayBuffer();
+            }
+
+            addLog('Unpacking .PAC Firmware Partitions...');
+            pacPartitions = parsePACBuffer(pacBuffer);
+            addLog(`Unpacked <span class="txt-cyan">${pacPartitions.length}</span> partitions successfully.`);
+
+            // Handshake & Boot PAC Internal FDL1/FDL2
+            await usbDevice.transferOut(epOut, new Uint8Array([0x7E]));
+            await readHDLCResponse();
+            await sendCommand(CMD_CONNECT);
+
+            const fdl1 = pacPartitions.find(p => p.id.toUpperCase().includes('FDL1'));
+            const fdl2 = pacPartitions.find(p => p.id.toUpperCase().includes('FDL2'));
+            if (!fdl1 || !fdl2) throw new Error('FDL1 or FDL2 missing inside PAC package!');
+
+            addLog(`Booting PAC FDL1 @ 0x${fdl1.addr.toString(16)}...`);
+            await sendArrayBuffer(fdl1.buffer, fdl1.addr, 0x210);
+            await sendCommand(CMD_EXEC_DATA);
+            await sendCommand(CMD_CONNECT);
+
+            addLog(`Booting PAC FDL2 @ 0x${fdl2.addr.toString(16)}...`);
+            await sendArrayBuffer(fdl2.buffer, fdl2.addr, 0x800);
+            await sendCommand(CMD_EXEC_DATA);
+            await sendCommand(CMD_CONNECT);
+
+            const keepNV = document.getElementById('flashMode').value === 'nv_keep';
+            for (const part of pacPartitions) {
+                const upId = part.id.toUpperCase();
+                if (upId.includes('FDL1') || upId.includes('FDL2')) continue;
+                if (keepNV && upId.includes('NV')) {
+                    addLog(`Skipping ${part.id} (IMEI / NV Protected)...`, 'txt-warn');
+                    continue;
+                }
+                addLog(`Flashing ${part.id} (${(part.size / 1024).toFixed(1)} KB)...`);
+                const target = (part.addr === 0 || part.addr === 0xFFFFFFFF) ? part.id.toLowerCase() : part.addr;
+                await sendArrayBuffer(part.buffer, target, 0x800);
+            }
+
+            await sendCommand(CMD_NORMAL_RESET);
+            updateProgress(100);
+            addLog('Firmware Flashing Completed! Rebooting Phone...', 'txt-ok');
+            setStatus('Flash Completed!');
+        } catch (err) {
+            addLog(err.message, 'txt-err');
+            setStatus('Flashing Failed!', true);
+        }
+    });
+
+    // =========================================================================
+    // 7. NV BACKUP, NV RESTORE & BOOTROM CHECK
+    // =========================================================================
+    document.getElementById('btnStartBackup').addEventListener('click', async () => {
+        try {
+            updateProgress(0);
+            await bootActiveLoaders();
+            const cpuCfg = CPU_LOADERS[currentModelObj.cpu];
+            const readAddr = typeof cpuCfg.nvAddr === 'number' ? cpuCfg.nvAddr : 0x90000002;
+            addLog('Backing up NV Calibration & IMEI data (64KB)...');
+            const nvData = await readFlashBlock(readAddr, 0x10000);
+
+            const blob = new Blob([nvData], { type: 'application/octet-stream' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${currentModelObj.id}_NV_Backup_${Date.now()}.bin`;
+            a.click();
+
+            addLog('NV Backup Saved to Downloads Folder!', 'txt-ok');
+            setStatus('NV Backup Completed!');
+        } catch (err) {
+            addLog(err.message, 'txt-err');
+            setStatus('NV Backup Failed!', true);
+        }
+    });
+
+    document.getElementById('btnRestoreNV').addEventListener('click', async () => {
+        try {
+            const file = document.getElementById('nvRestoreInput').files[0];
+            if (!file) throw new Error('Select a valid NV backup .BIN file first!');
+            updateProgress(0);
+            await bootActiveLoaders();
+            const cpuCfg = CPU_LOADERS[currentModelObj.cpu];
+            const writeAddr = typeof cpuCfg.nvAddr === 'number' ? cpuCfg.nvAddr : 'fixnv1';
+
+            addLog(`Restoring NV Partition from ${file.name}...`);
+            await sendArrayBuffer(await file.arrayBuffer(), writeAddr, 0x800);
+            await sendCommand(CMD_NORMAL_RESET);
+            addLog('NV Calibration Restored Successfully!', 'txt-ok');
+            setStatus('NV Restore Completed!');
+        } catch (err) {
+            addLog(err.message, 'txt-err');
+            setStatus('NV Restore Failed!', true);
+        }
+    });
+
+    document.getElementById('btnBootLoaders').addEventListener('click', async () => {
+        try {
+            updateProgress(0);
+            await bootActiveLoaders();
+            setStatus('Loaders Booted OK!');
+        } catch (err) {
+            addLog(err.message, 'txt-err');
+            setStatus('Loader Boot Failed!', true);
+        }
+    });
+
+    document.getElementById('btnCheckDevice').addEventListener('click', async () => {
+        try {
+            if (!usbDevice) throw new Error('Click "Connect SPD USB" first!');
+            addLog('Pinging SPD BootROM (0x7E)...');
+            await usbDevice.transferOut(epOut, new Uint8Array([0x7E]));
+            const res = await readHDLCResponse();
+            addLog(`BootROM Handshake Response Received (${res.payload.length} bytes)... <span class="txt-ok">OK</span>`);
+            setStatus('BootROM Alive!');
+        } catch (err) {
+            addLog(err.message, 'txt-err');
+            setStatus('No BootROM Response!', true);
+        }
+    });
+</script>
+
+</body>
+</html>
